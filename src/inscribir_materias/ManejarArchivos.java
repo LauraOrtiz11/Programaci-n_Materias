@@ -122,43 +122,42 @@ public class ManejarArchivos {
     }
 
     public Materia obtenerMateriaPorID(int idMateria) {
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(rutaArchivo))) {
-            String linea;
-            String nombre = null;
-            int creditos = 0;
-            int cupos = 0;
-            String horario = null;
-            boolean encontrado = false;
+    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(rutaArchivo))) {
+        String linea;
+        String nombre = null;
+        int creditos = 0;
+        int cupos = 0;
+        String horario = null;
+        boolean encontrado = false;
 
-            while ((linea = bufferedReader.readLine()) != null) {
-                linea = linea.trim();
-                if (linea.startsWith("ID: " + idMateria)) {
-                    encontrado = true;
-                } else if (linea.startsWith("ID: ") && encontrado) {
-                    break;
-                }
+        while ((linea = bufferedReader.readLine()) != null) {
+            linea = linea.trim();
+            if (linea.startsWith("ID: " + idMateria)) {
+                encontrado = true;
+            }
 
-                if (encontrado) {
-                    if (linea.startsWith("Materia: ")) { 
-                        nombre = linea.substring(9).trim(); 
-                    } else if (linea.startsWith("Créditos: ")) {
-                        creditos = Integer.parseInt(linea.substring(10).trim());
-                    } else if (linea.startsWith("Cupos: ")) {
-                        cupos = Integer.parseInt(linea.substring(7).trim());
-                    } else if (linea.startsWith("Horario: ")) {
-                        horario = linea.substring(9).trim();
-                    }
-
-                    if (nombre != null && horario != null && creditos > 0 && cupos > 0) {
-                        return new Materia(nombre, creditos, cupos, horario);
-                    }
+            if (encontrado) {
+                if (linea.startsWith("Materia: ")) {
+                    nombre = linea.substring(9).trim();
+                } else if (linea.startsWith("Créditos: ")) {
+                    creditos = Integer.parseInt(linea.substring(10).trim());
+                } else if (linea.startsWith("Cupos: ")) {
+                    cupos = Integer.parseInt(linea.substring(7).trim());
+                } else if (linea.startsWith("Horario: ")) {
+                    horario = linea.substring(9).trim();
                 }
             }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error al leer el archivo o formato incorrecto: " + e.getMessage());
+
+            if (encontrado && nombre != null && horario != null && creditos > 0 && cupos > 0) {
+                return new Materia(nombre, creditos, cupos, horario);
+            }
         }
-        return null;
+    } catch (IOException | NumberFormatException e) {
+        System.err.println("Error al leer el archivo o formato incorrecto: " + e.getMessage());
     }
+    return null;
+}
+
 
     // Método para agregar la materia al archivo de Horario
     public void agregarMateriaAHorario(Materia materia) {

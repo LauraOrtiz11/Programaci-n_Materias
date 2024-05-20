@@ -91,9 +91,13 @@ public class Ventana1 extends javax.swing.JFrame {
             // Si el código es un número, crear una instancia de Estudiante
             Estudiante estudiante = new Estudiante(codigo, nombre, 18);
 
+            // Asignar valores a las variables globales en Lista_Materias
+            Lista_Materias.nombreEstudiante = nombre;
+            Lista_Materias.codigoEstudiante = codigo;
+
             // Abrir la ventana de lista de materias
             Lista_Materias listaMaterias = new Lista_Materias();
-             // Pasar el estudiante a la lista de materias
+            // Pasar el estudiante a la lista de materias
             listaMaterias.setVisible(true);
             // Cerrar la ventana actual
             dispose();

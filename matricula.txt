@@ -1,12 +1,28 @@
-Materia: Calculo-Integral-302
+Nombre del Estudiante: sadasdas
+Código del Estudiante: 4546456
+Nombre de la Materia: Calculo-Integral-301
 Horario: Martes:11:00-13:00
 Créditos: 4
+Cupo Disponible: 29
 
-Materia: Programacºion-II-301
+Nombre del Estudiante: sadasdas
+Código del Estudiante: 4546456
+Nombre de la Materia: Calculo-Integral-302
 Horario: Miércoles:11:00-13:00
 Créditos: 4
+Cupo Disponible: 29
 
-Materia: Calculo-Integral-302
-Horario: Martes:11:00-13:00
+Nombre del Estudiante: jsioajdisad
+Código del Estudiante: 484848
+Nombre de la Materia: Programacion-II-301
+Horario: Lunes:07:00-10:00
+Créditos: 3
+Cupo Disponible: 29
+
+Nombre del Estudiante: jsioajdisad
+Código del Estudiante: 484848
+Nombre de la Materia: Fisica-II-301
+Horario: Lunes:10:00-12:00
 Créditos: 4
+Cupo Disponible: 29
 

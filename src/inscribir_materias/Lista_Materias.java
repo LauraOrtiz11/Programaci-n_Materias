@@ -12,6 +12,9 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.awt.Desktop;
+import java.io.File;
+import java.io.IOException;
 /**
  *
  * @author VALENTINA
@@ -21,6 +24,9 @@ public class Lista_Materias extends javax.swing.JFrame {
     private int creditosMaximos = 18;  // Ejemplo de límite de créditos
     private String rutaArchivo = "datos_materias.txt";
     private String rutaMatricula = "matricula.txt"; // Ruta del archivo de matrícula
+    // Variables para almacenar nombre y código del estudiante
+    public static String nombreEstudiante;
+    public static String codigoEstudiante;
 
     /**
      * Creates new form Lista_Materias
@@ -48,6 +54,7 @@ public class Lista_Materias extends javax.swing.JFrame {
         jPanel1 = new javax.swing.JPanel();
         TextID = new javax.swing.JTextField();
         ButonAñadir = new javax.swing.JButton();
+        BotonVerReporte = new javax.swing.JButton();
         ImagenVentana1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -84,7 +91,7 @@ public class Lista_Materias extends javax.swing.JFrame {
         getContentPane().add(jPanel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 220, 310, 20));
 
         TextID.setBackground(new java.awt.Color(255, 222, 157));
-        getContentPane().add(TextID, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 250, 70, -1));
+        getContentPane().add(TextID, new org.netbeans.lib.awtextra.AbsoluteConstraints(70, 250, 70, -1));
 
         ButonAñadir.setBackground(new java.awt.Color(153, 255, 102));
         ButonAñadir.setText("Añadir");
@@ -93,7 +100,16 @@ public class Lista_Materias extends javax.swing.JFrame {
                 ButonAñadirActionPerformed(evt);
             }
         });
-        getContentPane().add(ButonAñadir, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 250, -1, -1));
+        getContentPane().add(ButonAñadir, new org.netbeans.lib.awtextra.AbsoluteConstraints(160, 250, -1, -1));
+
+        BotonVerReporte.setBackground(new java.awt.Color(255, 153, 51));
+        BotonVerReporte.setText("Terminar");
+        BotonVerReporte.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                BotonVerReporteActionPerformed(evt);
+            }
+        });
+        getContentPane().add(BotonVerReporte, new org.netbeans.lib.awtextra.AbsoluteConstraints(240, 250, -1, -1));
 
         ImagenVentana1.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Imagenes/Imagen_Ventana1.jpg"))); // NOI18N
         ImagenVentana1.setText("LISTA MATERIAS");
@@ -107,19 +123,43 @@ public class Lista_Materias extends javax.swing.JFrame {
         try {
             // Obtén el texto del campo de texto
             String text = TextID.getText();
-    
+
             // Convierte el texto a un número entero
             int idMateria = Integer.parseInt(text);
-    
+
             // Procesa la materia
             procesarMateria(idMateria);
         } catch (NumberFormatException e) {
             // Maneja la excepción si el texto no es un número válido
             JOptionPane.showMessageDialog(this, "Por favor, ingrese un número válido", "Error de entrada", JOptionPane.ERROR_MESSAGE);
-    
+
         }
         
     }//GEN-LAST:event_ButonAñadirActionPerformed
+
+    private void BotonVerReporteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_BotonVerReporteActionPerformed
+            String rutaHorario = "horario.txt";
+
+        try {
+            // Verifica si Desktop es compatible con el sistema actual
+            if (Desktop.isDesktopSupported()) {
+                Desktop desktop = Desktop.getDesktop();
+                File file = new File(rutaHorario);
+
+                // Verifica si el archivo existe
+                if (file.exists()) {
+                    desktop.open(file); // Abre el archivo con el visor de texto predeterminado
+                } else {
+                    System.out.println("El archivo no existe.");
+                }
+            } else {
+                System.out.println("Desktop no es compatible con este sistema.");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        dispose();
+    }//GEN-LAST:event_BotonVerReporteActionPerformed
 
     /**
      * @param args the command line arguments
@@ -140,118 +180,173 @@ public class Lista_Materias extends javax.swing.JFrame {
             textAreaMaterias.append("Error al leer el archivo: " + e.getMessage() + "\n");
         }
     }
-    private void procesarMateria(int idMateria) {
-       Materia materia = obtenerMateriaPorID(idMateria);
+   private void procesarMateria(int idMateria) {
+    Materia materia;
 
-        if (materia != null) {
-            // Verificar si la materia ya fue inscrita anteriormente
-            if (materiasInscritas.contains(materia)) {
-                JOptionPane.showMessageDialog(this, "Ya está inscrito en esta materia.", "Error", JOptionPane.ERROR_MESSAGE);
-                return; // Salir del método
-            }
-
-            // Verificar conflicto de horario
-            boolean conflicto = false;
-            for (Materia inscrita : materiasInscritas) {
-                if (materia.conflictoHorario(inscrita)) {
-                    conflicto = true;
-                    break;
-                }
-            }
-
-            if (conflicto) {
-                JOptionPane.showMessageDialog(this, "Conflicto de horario con otra materia inscrita.", "Error", JOptionPane.ERROR_MESSAGE);
-                return; // Salir del método
-            }
-
-            // Verificar si hay créditos suficientes y cupos disponibles
-            if (creditosMaximos >= materia.getCreditos() && materia.getCupoMaximo() > 0) {
-                creditosMaximos -= materia.getCreditos();
-                textAreaMaterias.append("- Materia: " + materia.getNombre() + "\n");
-                textAreaMaterias.append("  Horario: " + materia.getHorario() + "\n");
-                textAreaMaterias.append("  Créditos: " + materia.getCreditos() + "\n");
-                agregarMateriaAHorario(materia);
-                materiasInscritas.add(materia); // Agregar la materia a la lista de inscritas
-
-                JOptionPane.showMessageDialog(this, "Materia matriculada correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
-
-                // Guardar la información en el archivo de matrícula
-                guardarEnArchivoMatricula(materia);
-            } else {
-                JOptionPane.showMessageDialog(this, "No se puede matricular la materia. Créditos insuficientes o no hay cupos disponibles.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
-        } else {
-            JOptionPane.showMessageDialog(this, "ID de materia no válido.", "Error", JOptionPane.ERROR_MESSAGE);
-        }
+    if (idMateria == 1) {
+        materia = new Materia("Calculo-Integral-301", 4, 30, "Martes:11:00-13:00");
+    } else if (idMateria == 2) {
+        materia = new Materia("Calculo-Integral-302", 4, 30, "Miércoles:11:00-13:00");
+    } else if (idMateria == 3) {
+        materia = new Materia("Programacion-II-301", 3, 30, "Lunes:07:00-10:00");
+    } else if (idMateria == 4) {
+        materia = new Materia("Programacion-II-302", 3, 30, "Martes:07:00-09:00");
+    } else if (idMateria == 5) {
+        materia = new Materia("Fisica-II-301", 4, 30, "Lunes:10:00-12:00");
+    } else if (idMateria == 6) {
+        materia = new Materia("Fisica-II-302", 4, 30, "Lunes:10:00-12:00");
+    } else if (idMateria == 7) {
+        materia = new Materia("Lectura-M1", 2, 40, "Jueves:07:00-09:00");
+    } else if (idMateria == 8) {
+        materia = new Materia("Lectura-T1", 2, 40, "Jueves:15:00-17:00");
+    } else if (idMateria == 9) {
+        materia = new Materia("Ingles-M1", 2, 40, "Lunes:10:00-12:00");
+   } else if (idMateria == 10) {
+        materia = new Materia("Ingles-T1", 2, 40, "Jueves:15:00-17:00");
+    } else if (idMateria == 11) {
+        materia = new Materia("Ciudadania-M1", 2, 40, "Jueves:11:00-13:00");
+    } else if (idMateria == 12) { 
+        materia = new Materia("Ciudadania-T1", 2, 40, "Viernes:13:00-15:00");
+    } else {
+        JOptionPane.showMessageDialog(this, "ID de materia no válido.", "Error", JOptionPane.ERROR_MESSAGE);
+        return; // Salir del método si el ID no es válido
     }
+
+    if (materia != null) {
+        // Verificar si la materia ya fue inscrita anteriormente
+        if (materiasInscritas.contains(materia)) {
+            JOptionPane.showMessageDialog(this, "Ya está inscrito en esta materia.", "Error", JOptionPane.ERROR_MESSAGE);
+            return; // Salir del método
+        }
+
+        // Verificar conflicto de horario
+        boolean conflicto = false;
+        for (Materia inscrita : materiasInscritas) {
+            if (materia.conflictoHorario(inscrita)) {
+                conflicto = true;
+                break;
+            }
+        }
+
+        if (conflicto) {
+            JOptionPane.showMessageDialog(this, "Conflicto de horario con otra materia inscrita.", "Error", JOptionPane.ERROR_MESSAGE);
+            return; // Salir del método
+        }
+
+        // Verificar si hay créditos suficientes y cupos disponibles
+        if (creditosMaximos >= materia.getCreditos() && materia.getCupoMaximo() > 0) {
+            creditosMaximos -= materia.getCreditos();
+            textAreaMaterias.append("- Materia: " + materia.getNombre() + "\n");
+            textAreaMaterias.append("  Horario: " + materia.getHorario() + "\n");
+            textAreaMaterias.append("  Créditos: " + materia.getCreditos() + "\n");
+            agregarMateriaAHorario(materia);
+            materiasInscritas.add(materia); // Agregar la materia a la lista de inscritas
+
+            JOptionPane.showMessageDialog(this, "Materia matriculada correctamente.", "Información", JOptionPane.INFORMATION_MESSAGE);
+
+            // Guardar la información en el archivo de matrícula
+            guardarEnArchivoMatricula(materia);
+        } else {
+            JOptionPane.showMessageDialog(this, "No se puede matricular la materia. Créditos insuficientes o no hay cupos disponibles.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    } else {
+        JOptionPane.showMessageDialog(this, "ID de materia no válido.", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+}
+
     private void guardarEnArchivoMatricula(Materia materia) {
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(rutaMatricula, true))) {
-            bufferedWriter.write("Materia: " + materia.getNombre() + "\n");
+    try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(rutaMatricula, true))) {
+            bufferedWriter.write("Nombre del Estudiante: " + nombreEstudiante + "\n");
+            bufferedWriter.write("Código del Estudiante: " + codigoEstudiante + "\n");
+            bufferedWriter.write("Nombre de la Materia: " + materia.getNombre() + "\n");
             bufferedWriter.write("Horario: " + materia.getHorario() + "\n");
             bufferedWriter.write("Créditos: " + materia.getCreditos() + "\n");
+            bufferedWriter.write("Cupo Disponible: " + materia.getCupoMaximo() + "\n");
             bufferedWriter.write("\n");
         } catch (IOException e) {
             System.err.println("Error al escribir en el archivo de matrícula: " + e.getMessage());
         }
-    }
-    
-    
-    public Materia obtenerMateriaPorID(int idMateria) {
-      try (BufferedReader bufferedReader = new BufferedReader(new FileReader(rutaArchivo))) {
-            String linea;
-            String nombre = null;
-            int creditos = 0;
-            int cupos = 0;
-            String horario = null;
-            boolean encontrado = false;
+}
 
-            while ((linea = bufferedReader.readLine()) != null) {
-                linea = linea.trim();
-                if (linea.startsWith("ID: " + idMateria)) {
-                    encontrado = true;
-                } else if (linea.startsWith("ID: ") && encontrado) {
-                    break;
+    
+    
+   public Materia obtenerMateriaPorID(int idMateria) {
+    try (BufferedReader bufferedReader = new BufferedReader(new FileReader(rutaArchivo))) {
+        String linea;
+        String nombre = null;
+        int creditos = 0;
+        int cupos = 0;
+        String horario = null;
+        boolean encontrado = false;
+
+        while ((linea = bufferedReader.readLine()) != null) {
+            linea = linea.trim();
+
+            if (linea.startsWith("ID: ")) {
+                // Si encontramos un nuevo ID, verificar si ya habíamos encontrado el anterior
+                if (encontrado) {
+                    break;  // Salimos del bucle ya que hemos encontrado y procesado el ID deseado
                 }
 
-                if (encontrado) {
-                    if (linea.startsWith("Materia: ")) {
-                        nombre = linea.substring(9).trim();
-                    } else if (linea.startsWith("Créditos: ")) {
-                        creditos = Integer.parseInt(linea.substring(10).trim());
-                    } else if (linea.startsWith("Cupos: ")) {
-                        cupos = Integer.parseInt(linea.substring(7).trim());
-                    } else if (linea.startsWith("Horario: ")) {
-                        horario = linea.substring(9).trim();
-                    }
+                int idLeido = Integer.parseInt(linea.substring(4).trim());
+                if (idLeido == idMateria) {
+                    encontrado = true;
+                } else {
+                    encontrado = false;
+                }
+            } 
 
-                    if (nombre != null && horario != null && creditos > 0 && cupos > 0) {
-                        return new Materia(nombre, creditos, cupos, horario);
-                    }
+            if (encontrado) {
+                if (linea.startsWith("Materia: ")) {
+                    nombre = linea.substring(9).trim();
+                } else if (linea.startsWith("Créditos: ")) {
+                    creditos = Integer.parseInt(linea.substring(10).trim());
+                } else if (linea.startsWith("Cupos: ")) {
+                    cupos = Integer.parseInt(linea.substring(7).trim());
+                } else if (linea.startsWith("Horario: ")) {
+                    horario = linea.substring(9).trim();
+                }
+
+                if (nombre != null && horario != null && creditos > 0 && cupos > 0) {
+                    return new Materia(nombre, creditos, cupos, horario);
                 }
             }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println("Error al leer el archivo o formato incorrecto: " + e.getMessage());
         }
-        return null;
+    } catch (IOException | NumberFormatException e) {
+        System.err.println("Error al leer el archivo o formato incorrecto: " + e.getMessage());
     }
+    return null;
+}
+
     
     public void agregarMateriaAHorario(Materia materia) {
         String rutaHorario = "horario.txt";
-        try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(rutaHorario, true))) {
-            int cupoDisponible = materia.decrementarCupo();
-            if (cupoDisponible >= 0) {
-                bufferedWriter.write("Nombre: " + materia.getNombre() + "\n");
-                bufferedWriter.write("Horario: " + materia.getHorario() + "\n");
-                bufferedWriter.write("Créditos: " + materia.getCreditos() + "\n");
-                bufferedWriter.write("Cupo Disponible: " + cupoDisponible + "\n");
-                bufferedWriter.write("\n");
-                System.out.println("Materia matriculada correctamente.");
-            } else {
-                System.out.println("No hay cupo disponible para esta materia.");
-            }
-        } catch (IOException e) {
-            System.err.println("Error al escribir en el archivo de horario: " + e.getMessage());
+    try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(rutaHorario, true))) {
+        File file = new File(rutaHorario);
+        boolean archivoVacio = file.length() == 0; // Verifica si el archivo está vacío
+
+        // Verifica si el archivo está vacío antes de escribir el nombre y el código del estudiante
+        if (archivoVacio) {
+            bufferedWriter.write("=====================================\n");
+            bufferedWriter.write("Nombre del Estudiante: " + nombreEstudiante + "\n");
+            bufferedWriter.write("Código del Estudiante: " + codigoEstudiante + "\n");
+            bufferedWriter.write("-------------------------------------\n");
         }
+
+        int cupoDisponible = materia.decrementarCupo();
+        if (cupoDisponible >= 0) {
+            bufferedWriter.write("| " + "Nombre: " + materia.getNombre() + "\n");
+            bufferedWriter.write("| " + "Horario: " + materia.getHorario() + "\n");
+            bufferedWriter.write("| " + "Créditos: " + materia.getCreditos() + "\n");
+            bufferedWriter.write("| " + "Cupo Disponible: " + cupoDisponible + "\n");
+            bufferedWriter.write("-------------------------------------\n");
+            System.out.println("Materia matriculada correctamente.");
+        } else {
+            System.out.println("No hay cupo disponible para esta materia.");
+        }
+    } catch (IOException e) {
+        System.err.println("Error al escribir en el archivo de horario: " + e.getMessage());
+    }
     }
     
     public static void main(String args[]) {
@@ -284,6 +379,7 @@ public class Lista_Materias extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton BotonVerReporte;
     private javax.swing.JButton ButonAñadir;
     private javax.swing.JLabel ImagenVentana1;
     private javax.swing.JLabel LabelIndicaciones;

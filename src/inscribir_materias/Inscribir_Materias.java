@@ -8,7 +8,9 @@ package inscribir_materias;
 import Ventanas.Ventana1;
 
 /**
- * @author VALENTINA
+ * @author Laura Valentina Ortiz Bustos
+ Nicolas Felipe Gonzalez Bello 
+ Joseph Santiago Morales Carrillo 
  */
 
 public class Inscribir_Materias {
